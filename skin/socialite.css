@@ -113,11 +113,6 @@ notification[value="socialite-submitbar-notification"] {
 }
 
 .socialite-urlbar-icon image[anonid="imgSite"] {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 16px;
-  height: 16px;
   opacity: .8;
 }
 
@@ -126,16 +121,11 @@ notification[value="socialite-submitbar-notification"] {
 }
 
 .socialite-urlbar-icon image[anonid="imgAlert"] {
-  position: absolute;
-  top: 11px;
-  left: 11px;
-  width: 6px;
-  height: 6px;
   display: none;
 }
 
 .socialite-urlbar-icon[isAlert=true] image[anonid="imgAlert"] {
-	display: block;
+  display: block;
 }
 
 /* Info bar tooltips */
