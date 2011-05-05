@@ -71,7 +71,7 @@ var Socialite =
     },
     
     siteFailureMessage: function(site, subject, message) {
-      Socialite.failureMessage(site.siteName, subject+": "+message);
+      Socialite.utils.failureMessage(site.siteName, subject+": "+message);
     }
     
   }
