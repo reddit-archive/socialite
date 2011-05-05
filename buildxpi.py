@@ -72,9 +72,9 @@ class XPIBuilder:
         self.verbose = verbose
 
         # Special paths/names
-        self.n = {}        
-        self.n["jar"] = self.c["app_name"]+".jar"
-        self.n["jar_loc"] = "chrome/" + self.n["jar"]
+        self.n = {}
+        self.n["src"] = self.c["src_path"]
+        self.n["install.rdf"] = path.join(self.c["src_path"], "install.rdf")
         self.n["xpi"] = self.c["app_name"]+".xpi"
     
     def msg(self, msg, verbose=True):
@@ -112,7 +112,7 @@ class XPIBuilder:
     def read_info(self):
         self.msg("Reading info from install.rdf file...")
         
-        rdf_dom = minidom.parse(self.p("install.rdf"))
+        rdf_dom = minidom.parse(self.pn("install.rdf"))
         descs = rdf_dom.getElementsByTagName("RDF:Description")
         for desc in descs:
             if desc.getAttribute("RDF:about") == "urn:mozilla:install-manifest": break
@@ -141,13 +141,7 @@ class XPIBuilder:
     def clean(self):
         """Remove any files from the previous build"""
         self.msg("Cleaning build directory...")
-        remove_if_exists(self.pn("jar"))
         remove_if_exists(self.pn("xpi"))
-    
-    def cleanup(self):
-        self.msg("Cleaning up finished build directory...")
-        if (self.c["clean_up"]):
-            remove_if_exists(self.pn("jar"))
     
     def build(self):
         def runcalls(calls):
@@ -165,9 +159,7 @@ class XPIBuilder:
             runcalls(self.c["before"])
         
         self.clean()
-        self.build_jar()
         self.build_xpi()
-        self.cleanup()
         
         if "after" in self.c:
             self.msg("Calling post-build hooks...")
@@ -176,68 +168,16 @@ class XPIBuilder:
         self.msg("Done.")
         self.print_info()
             
-    def process_chrome_manifest(self):
-        self.msg("\tProcessing chrome.manifest file...")
-        
-        try:
-            chrome_manifest_str = open(self.p("chrome.manifest")).read()
-        except IOError:
-            sys.exit("Error: Unable to locate the chrome.manifest file.")
-        
-        # Change paths to chrome directories to their locations in the JAR
-        # Example: "content myapp content/" -> "content myapp jar:chrome/myapp.jar!content/"
-        jarify_re = re.compile(r"(?m)^((content|skin|locale).*\s+)(\S+/)(.*)$", re.MULTILINE)
-        jar_chrome_manifest_str = re.sub(jarify_re, r"\1jar:%s!/\3\4" % self.n["jar_loc"], chrome_manifest_str)
-        
-        return jar_chrome_manifest_str
-            
-    def build_jar(self):
-        self.msg("Creating JAR file %s..." % relpath(self.pn("jar")))
-        jarfile = ZipFile(self.pn("jar"), "w", ZIP_STORED)
-        
-        for chromedir in self.c["chrome_dirs"]:
-            self.msg("\tAdding chrome directory \"%s\":" % chromedir)
-            self.add_dir_to_zip(self.p(chromedir), jarfile, self.basepath)
-                
-        jarfile.close()
-            
     def build_xpi(self):
         self.msg("Creating XPI file %s..." % relpath(self.pn("xpi")))
         xpifile = ZipFile(self.pn("xpi"), "w", ZIP_DEFLATED)
         
-        for rootdir in self.c["root_dirs"]:
-            self.msg("\tAdding root directory \"%s\":" % rootdir)
-            self.add_dir_to_zip(self.p(rootdir), xpifile, self.basepath)
+        self.msg("\tAdding source directory \"%s\":" % self.pn("src"))
+        self.add_dir_to_zip(self.pn("src"), xpifile, self.pn("src"))
             
-        self.msg("\tAdding root files")
-        for rootfile in self.c["root_files"]+["install.rdf"]:
-            self.add_file_to_zip(self.p(rootfile), xpifile, self.basepath)
-        
-        # Adding the .jar file
-        self.msg("\tAdding %s" % self.n["jar"])
-        
-        # Find the latest modification date in the .jar contents
-        # Note: while it is inefficient to reopen the zipfile, it's useful to ensure that build_xpi() could be run independently from build_jar().
-        jarzip = ZipFile(self.pn("jar"), "r", ZIP_STORED)
-        max_date = max([info.date_time for info in jarzip.infolist()])
-        jarzip.close()
-        
-        # Add the .jar to the .xpi
-        # The .jar is assigned the latest modification date above.
-        # This is done to prevent the .jar generation timestamp from changing the .xpi hash each build.
-        jarinfo = ZipInfo(self.n["jar_loc"], max_date)
-        xpifile.writestr(jarinfo, open(self.pn("jar"), "r").read())
-        
-        # Process the chrome.manifest
-        cm_str = self.process_chrome_manifest()
-        self.msg("\tAdding chrome.manifest")
-        
-        # Add the chrome.manifest to the XPI
-        cm_st = stat(self.p("chrome.manifest"))
-        cm_mtime = time.localtime(cm_st.st_mtime)
-        cm_zi = ZipInfo("chrome.manifest", cm_mtime[0:6])
-        cm_zi.external_attr = 0644<<16
-        xpifile.writestr(cm_zi, cm_str)
+        self.msg("\tAdding extra files")
+        for extrafile in self.c["extra_files"]:
+            self.add_file_to_zip(self.p(extrafile), xpifile, self.basepath)
         
         xpifile.close()
         
@@ -293,8 +233,8 @@ def load_config():
     except ImportError:
         sys.exit("Error: Unable to import the build configuration data. Please make sure the module build_xpi_config exists and is properly formatted.")
 
-    config.setdefault("clean_up", True)
-    
+    config.setdefault("src_path", "src")
+
     # Import local build configuration
     try:
         from buildxpi_config_local import config as config_local
