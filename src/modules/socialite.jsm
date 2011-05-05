@@ -28,13 +28,13 @@ var Socialite =
   utils: {
 
     openUILink: function(url, e) {
-      window = windowManager.getMostRecentWindow("navigator:browser");
-      window.openUILink(url, e);
+      let win = windowManager.getMostRecentWindow("navigator:browser");
+      win.openUILink(url, e);
     },
     
     openUILinkIn: function(url, where) {
-      window = windowManager.getMostRecentWindow("navigator:browser");
-      window.openUILinkIn(url, where);
+      let win = windowManager.getMostRecentWindow("navigator:browser");
+      win.openUILinkIn(url, where);
     },
     
     showNotification: function(title, message, icon, name, listener, data) {
