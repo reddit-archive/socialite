@@ -5,16 +5,13 @@ Components.utils.import("resource://socialite/utils/hitch.jsm");
 
 var EXPORTED_SYMBOLS = ["Action", "ActionType"];
 
-let ActionConstructorMethodProto = {
-  // Actions will use whatever "this" is set to when they are called. Use this method to create a reference to an action with a static value of "this".
-  bind: function(thisObj) {
-    bound = hitchThis(thisObj, this);
-    bound.actionClass = this.actionClass;
-    bound.actionPrototype = this.actionPrototype;
-    return bound;
-  }
+// Actions will use whatever "this" is set to when they are called. Use this method to create a reference to an action with a static value of "this".
+function _bindAction(thisObj) {
+  bound = hitchThis(thisObj, this);
+  bound.actionClass = this.actionClass;
+  bound.actionPrototype = this.actionPrototype;
+  return bound;
 }
-ActionConstructorMethodProto.__proto__ = Function.prototype;
 
 function Action(name, func) {
   // Create a new object "class" for this action
@@ -37,7 +34,7 @@ function Action(name, func) {
     return action;
   }
   
-  ActionConstructorMethod.__proto__ = ActionConstructorMethodProto;
+  ActionConstructorMethod.bind = _bindAction;
   // To modify the action class after the fact, we'll create a property on the constructor
   ActionConstructorMethod.actionClass = ActionClass;
   ActionConstructorMethod.actionPrototype = ActionClass.prototype;
