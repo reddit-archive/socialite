@@ -62,8 +62,8 @@ RedditAuth.prototype = {
         } else {
           authInfo = extractAuthInfo(r.responseXML);
         }
-        action.success(authInfo);
         this._updateAuthInfo(authInfo);
+        action.success(authInfo);
       }),
       function failure(r) { action.failure(); }
     );
