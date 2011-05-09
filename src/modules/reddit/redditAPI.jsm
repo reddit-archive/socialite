@@ -20,12 +20,13 @@ AUTH_EXPIRE_AGE = 4*60*60;
 // API versions:
 //   0.0 -- original API
 //   0.1 -- by_id API request added
+//   1.0 -- modhash available in api responses
 //
 // DOM versions:
 //   0.0 -- original DOM, before jQuery changes
 //   1.0 -- after jQuery changes
 //   1.1 -- consolidation of link/linkcompressed classes; higher-level likes/dislikes/unvoted classes
-REDDIT_LATEST_VERSION = { dom:"1.1", api:"0.1" };
+REDDIT_LATEST_VERSION = { dom:"1.1", api:"1.0" };
 
 function RedditVersion(){};
 RedditVersion.prototype = REDDIT_LATEST_VERSION;

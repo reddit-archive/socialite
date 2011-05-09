@@ -5,6 +5,9 @@ http = Components.utils.import("resource://socialite/utils/action/httpRequest.js
 Components.utils.import("resource://socialite/utils/hitch.jsm");
 Components.utils.import("resource://socialite/utils/watchable.jsm");
 
+var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
+                 .createInstance(Components.interfaces.nsIJSON);
+
 var EXPORTED_SYMBOLS = ["RedditAuth", "authParams"];
 
 // ---
@@ -28,21 +31,37 @@ RedditAuth.prototype = {
   _getAuthInfo: Action("reddit_auth.getAuthInfo", function(action) {
     logger.log("reddit_auth", this.siteURL, "Getting new authentication info");
     
-    let snarfTarget;
-    if (this.version.compare("dom", "1.1") >= 0) {
-      snarfTarget = this.siteURL + "stats/";
+    let target;
+    if (this.version.compare("api", "1.0") >= 0) {
+      target = this.siteURL + "api/me.json";
+    } else if (this.version.compare("dom", "1.1") >= 0) {
+      target = this.siteURL + "stats/";
     } else if (this.version["dom"] == "1.0") {
-      snarfTarget = this.siteURL + "api/info/";
+      target = this.siteURL + "api/info/";
     } else {
-      snarfTarget = this.siteURL + "login/";
+      target = this.siteURL + "login/";
     }
     
     let act = http.GetAction(
-      snarfTarget,
+      target,
       null,
       
       hitchThis(this, function success(r) {
-        let authInfo = extractAuthInfo(r.responseXML);
+        let authInfo;
+        if (this.version.compare("api", "1.0") >= 0) {
+          try {
+            let json = nativeJSON.decode(r.responseText);
+            if (json.data) {
+              authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true};
+            } else {
+              authInfo = {username: false, isLoggedIn: false};
+            }
+          } catch (e) {
+            action.failure(r);
+          }
+        } else {
+          authInfo = extractAuthInfo(r.responseXML);
+        }
         action.success(authInfo);
         this._updateAuthInfo(authInfo);
       }),
