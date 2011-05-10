@@ -8,7 +8,7 @@ pref("extensions.socialite.consolidateSites", false);
 pref("extensions.socialite.persistMode", 2);
 pref("extensions.socialite.refreshBarEnabled", true);
 pref("extensions.socialite.refreshSitesEnabled", true);
-pref("extensions.socialite.refreshInterval", 120);
+pref("extensions.socialite.refreshInterval", 300);
 
 // Sites
 pref("extensions.socialite.sites", '["reddit"]');
