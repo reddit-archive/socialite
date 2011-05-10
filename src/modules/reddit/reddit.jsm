@@ -41,14 +41,12 @@ RedditSite.prototype.onLoad = function() {
   
   this.cached = {
     mysubreddits: CachedAction(this.API.mysubreddits.bind(this.API), 30*60),
-    myuserinfo:   CachedAction(this.API.myuserinfo.bind(this.API),    1*60)
   };
   
   this.cached._removeUsernameWatch = this.API.auth.onUsernameChange.watch(
     hitchThis(this, function(username) {
       // Reset subreddit and user info caches when the username changes.
       this.cached.mysubreddits.cachedValue.reset();
-      this.cached.myuserinfo.cachedValue.reset();
       this.refreshAlertState();
     })
   );
@@ -582,13 +580,14 @@ RedditSite.prototype.refreshAlertState = function() {
   // It is possible that getAuthInfo could detect a username change, so we must prevent this function from getting called a second time.
   if (!this._refreshingAlertState) {
     let site = this;
+    this.API.auth.getAuthInfo.cachedValue.expire();
     let refresh = this.API.auth.getAuthInfo(function(authInfo) {
-      if (authInfo.isLoggedIn) {
+      if (authInfo.isLoggedIn && authInfo.info.has_mail) {
         // Check for new messages
         site.API.messages(
           function success(r, json) {
             if (json) {
-              site.newMessages = json.data.children.filter(function(message) {
+              site.newMessages = json.data.child,sapiren.filter(function(message) {
                 return message.data.new;
               });
               
@@ -598,9 +597,6 @@ RedditSite.prototype.refreshAlertState = function() {
           }/*,
           this.actionFailureHandler*/
         ).perform(false);
-        
-        // Update cached user karma info
-        site.cached.myuserinfo().perform();
       } else {
         this.alertState = false;
         this.newMessages = [];

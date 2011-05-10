@@ -256,24 +256,6 @@ RedditAPI.prototype.userinfo = Action("reddit.userinfo", function(username, acti
   );
 });
 
-RedditAPI.prototype.myuserinfo = Action("reddit.myuserinfo", function(action) {
-  logger.log("reddit", "Making myuserinfo API request");
-  
-  let self = this;
-  this.auth.getAuthInfo(
-    function(authInfo) {
-      if (authInfo.username) {
-        let act = self.userinfo();
-        act.chainTo(action);
-        act.perform(authInfo.username);
-      } else {
-        action.failure();
-      }
-    },
-    action.chainFailure()
-  ).perform();
-});
-
 RedditAPI.prototype.mysubreddits = Action("reddit.mysubreddits", function(action) {
   logger.log("reddit", "Making mysubreddits API request");
     

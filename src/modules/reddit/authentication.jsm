@@ -52,7 +52,7 @@ RedditAuth.prototype = {
           try {
             let json = nativeJSON.decode(r.responseText);
             if (json.data) {
-              authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true};
+              authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true, info: json.data};
             } else {
               authInfo = {username: false, isLoggedIn: false};
             }

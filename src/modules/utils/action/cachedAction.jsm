@@ -55,13 +55,18 @@ CachedValue.prototype = {
   },
   
   get isValid() {
-    return this.hasValue && !this.isExpired;
+    return !this.forceUpdate && this.hasValue && !this.isExpired;
   },
     
   updated: function() {
     logger.log("cachedaction", this.actionName + " updated")
     this._value = arguments;
     this.lastUpdated = Date.now();
+    this.forceUpdate = false;
+  },
+
+  expire: function() {
+    this.forceUpdate = true;
   },
 
   reset: function() {

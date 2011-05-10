@@ -37,7 +37,3 @@
 	-moz-margin-start: 6px;
 	-moz-margin-end: 0px !important;
 }
-
-.reddit-site-info[showkarma="false"] .reddit-karma-info {
-	display:none;
-}

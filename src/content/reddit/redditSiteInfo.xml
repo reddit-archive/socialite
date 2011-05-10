@@ -70,16 +70,8 @@
                 labelMailCount.hidden = true;
               }
               
-              self.site.cached.myuserinfo(
-                function success(r, json) {
-                  setLabel("labelLinkKarma",    json.data.link_karma);
-                  setLabel("labelCommentKarma", json.data.comment_karma);
-                  self.setAttribute("showkarma", true);
-                },
-                function failure() {
-                  self.setAttribute("showkarma", false);
-                }
-              ).perform();
+              setLabel("labelLinkKarma",    authInfo.info.link_karma);
+              setLabel("labelCommentKarma", authInfo.info.comment_karma);
             }
           }).perform();
         </body>
