@@ -70,8 +70,10 @@
                 labelMailCount.hidden = true;
               }
               
-              setLabel("labelLinkKarma",    authInfo.info.link_karma);
-              setLabel("labelCommentKarma", authInfo.info.comment_karma);
+              if (authInfo.info) {
+                setLabel("labelLinkKarma",    authInfo.info.link_karma);
+                setLabel("labelCommentKarma", authInfo.info.comment_karma);
+              }
             }
           }).perform();
         </body>
