@@ -76,13 +76,18 @@ var _HTTPRequestAction = Action("httpRequest", function(action) {
     }
     logger.log("httpRequest", "GET request to " + target);
     action.request.open("get", target, true);
-    action.request.onload = onLoad;
-    action.request.send(null);
   } else if (action.method == "post") {
+    logger.log("httpRequest", "POST to " + action.url + " (sent: " + formattedParams +  ")");
     action.request.open("post", action.url, true);
     action.request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    action.request.onload = onLoad;
-    logger.log("httpRequest", "POST to " + action.url + " (sent: " + formattedParams +  ")");
-    action.request.send(formattedParams);
   }
+  action.request.onload = onLoad;
+
+  // via http://forums.mozillazine.org/viewtopic.php?f=19&t=1950239
+  try {
+    action.request.channel.QueryInterface(Components.interfaces.nsIHttpChannelInternal)
+          .forceAllowThirdPartyCookie = true;
+  } catch(ex) { /* user is using Firefox < 4 */ }
+
+  action.request.send(action.method == "get" ? null : formattedParams);
 });
