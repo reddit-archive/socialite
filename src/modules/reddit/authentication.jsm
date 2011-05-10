@@ -31,15 +31,18 @@ RedditAuth.prototype = {
   _getAuthInfo: Action("reddit_auth.getAuthInfo", function(action) {
     logger.log("reddit_auth", this.siteURL, "Getting new authentication info");
     
+    let hasMeAPI = this.version.compare("api", "1.0") >= 0;
     let target;
-    if (this.version.compare("api", "1.0") >= 0) {
+    if (hasMeAPI) {
       target = this.siteURL + "api/me.json";
-    } else if (this.version.compare("dom", "1.1") >= 0) {
-      target = this.siteURL + "stats/";
-    } else if (this.version["dom"] == "1.0") {
-      target = this.siteURL + "api/info/";
     } else {
-      target = this.siteURL + "login/";
+      if (this.version.compare("dom", "1.1") >= 0) {
+        target = this.siteURL + "stats/";
+      } else if (this.version["dom"] == "1.0") {
+        target = this.siteURL + "api/info/";
+      } else {
+        target = this.siteURL + "login/";
+      }
     }
     
     let act = http.GetAction(
@@ -48,7 +51,7 @@ RedditAuth.prototype = {
       
       hitchThis(this, function success(r) {
         let authInfo;
-        if (this.version.compare("api", "1.0") >= 0) {
+        if (hasMeAPI) {
           try {
             let json = nativeJSON.decode(r.responseText);
             if (json.data) {
@@ -68,7 +71,9 @@ RedditAuth.prototype = {
       function failure(r) { action.failure(); }
     );
     
-    act.request.overrideMimeType("text/xml");
+    if (!hasMeAPI) {
+      act.request.overrideMimeType("text/xml");
+    }
     act.perform();
   }),
   
