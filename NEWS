@@ -1,6 +1,9 @@
 == Version 1.4 ==
+* Firefox 4 support.
 * New information tooltip on url bar icons.
 * Submit bar submits on tab+enter.
+* Use new simplified authentication query api call.
+* Fixes to support reddit site/api changes.
 
 == Version 1.3.3.7 (Preview Release) ==
 * New message ("orangered envelope") notifications for reddit.
