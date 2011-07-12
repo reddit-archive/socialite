@@ -587,7 +587,7 @@ RedditSite.prototype.refreshAlertState = function() {
         site.API.messages(
           function success(r, json) {
             if (json) {
-              site.newMessages = json.data.child,sapiren.filter(function(message) {
+              site.newMessages = json.data.children.filter(function(message) {
                 return message.data.new;
               });
               
