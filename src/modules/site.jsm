@@ -15,8 +15,6 @@ var observerService = Components.classes["@mozilla.org/observer-service;1"]
 var prefService = Components.classes["@mozilla.org/preferences-service;1"]
                   .getService(Components.interfaces.nsIPrefService);
 
-var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                 .createInstance(Components.interfaces.nsIJSON);
 
 var EXPORTED_SYMBOLS = ["SocialiteSite", "SiteCollection", "SiteClassRegistry"];
 
@@ -163,7 +161,7 @@ SiteCollection.prototype.isLoaded = function(site) {
 }
 
 SiteCollection.prototype.loadConfiguredSites = function() {
-  var siteIDs = nativeJSON.decode(Socialite.preferences.getCharPref("sites"));
+  var siteIDs = JSON.parse(Socialite.preferences.getCharPref("sites"));
   
   siteIDs.forEach(function(siteID, index, array) {
     var siteName = Socialite.preferences.getCharPref("sites."+siteID+".siteName");
@@ -185,7 +183,7 @@ SiteCollection.prototype.saveConfiguredSites = function() {
   for (let [siteID, site] in this) {
     siteIDs.push(site.siteID);
   }
-  Socialite.preferences.setCharPref("sites", nativeJSON.encode(siteIDs));
+  Socialite.preferences.setCharPref("sites", JSON.stringify(siteIDs));
 }
 
 SiteCollection.prototype.requestID = function(siteID) {

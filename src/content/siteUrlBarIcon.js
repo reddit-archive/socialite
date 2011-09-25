@@ -29,7 +29,6 @@ SocialiteWindow.SiteUrlBarIcon = (function() {
     
     create: function(site) {
       let urlBarIconParent = document.getElementById("urlbar-icons");
-      let feedButton = document.getElementById("feed-button");
       let urlBarIcon = document.createElement("hbox");
       
       urlBarIcon.site = site;
@@ -50,7 +49,7 @@ SocialiteWindow.SiteUrlBarIcon = (function() {
       // Hide the icon before we add and position it.
       urlBarIcon.setAttribute("hidden", true);
       
-      urlBarIconParent.insertBefore(urlBarIcon, feedButton);
+      urlBarIconParent.appendChild(urlBarIcon);
       this.updateSiteName(site, site.siteName);
       
       urlBarIcon.updateVisibility = function(visible, consolidated) {
@@ -66,7 +65,6 @@ SocialiteWindow.SiteUrlBarIcon = (function() {
     
     createGeneral: function() {
       let urlBarIconParent = document.getElementById("urlbar-icons");
-      let feedButton = document.getElementById("feed-button");
       let urlBarIcon = document.createElement("hbox");
       
       urlBarIcon.id = this.GENERAL_URLBARICON_ID;
@@ -86,7 +84,7 @@ SocialiteWindow.SiteUrlBarIcon = (function() {
       
       urlBarIcon.addEventListener("click", SiteUrlBarIcon.handleClick, false);
       
-      urlBarIconParent.insertBefore(urlBarIcon, feedButton);
+      urlBarIconParent.appendChild(urlBarIcon);
       
       return urlBarIcon;
     },
@@ -108,14 +106,13 @@ SocialiteWindow.SiteUrlBarIcon = (function() {
     
     updateSiteName: function(site, newSiteName) {
       let urlBarIcon = this.get(site);
-      let feedButton = document.getElementById("feed-button");
       let urlBarIconParent = document.getElementById("urlbar-icons");
       
       urlBarIcon.name = newSiteName;
 
       let urlBarIcons = SiteUrlBarIcon.getAll();
       if (urlBarIcons.length == 0) {
-        urlBarIconParent.insertBefore(urlBarIcon, feedButton);
+		urlBarIconParent.appendChild(urlBarIcon);
       } else {
         domUtils.insertSorted(urlBarIcon, urlBarIcons, domUtils.compareBy(function(e) e.name));
       }
