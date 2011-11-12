@@ -28,39 +28,22 @@ RedditAuth.prototype = {
   _getAuthInfo: Action("reddit_auth.getAuthInfo", function(action) {
     logger.log("reddit_auth", this.siteURL, "Getting new authentication info");
     
-    let hasMeAPI = this.version.compare("api", "1.0") >= 0;
-    let target;
-    if (hasMeAPI) {
-      target = this.siteURL + "api/me.json";
-    } else {
-      if (this.version.compare("dom", "1.1") >= 0) {
-        target = this.siteURL + "stats/";
-      } else if (this.version["dom"] == "1.0") {
-        target = this.siteURL + "api/info/";
-      } else {
-        target = this.siteURL + "login/";
-      }
-    }
-    
     let act = http.GetAction(
-      target,
+      this.siteURL + "api/me.json",
       null,
       
       hitchThis(this, function success(r) {
         let authInfo;
-        if (hasMeAPI) {
-          try {
-            let json = JSON.parse(r.responseText);
-            if (json.data) {
-              authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true, info: json.data};
-            } else {
-              authInfo = {username: false, isLoggedIn: false};
-            }
-          } catch (e) {
-            action.failure(r);
+        try {
+          let json = JSON.parse(r.responseText);
+          if (json.data) {
+            authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true, info: json.data};
+          } else {
+            authInfo = {username: false, isLoggedIn: false};
           }
-        } else {
-          authInfo = extractAuthInfo(r.responseXML);
+        } catch (e) {
+          action.failure(r);
+          return;
         }
         this._updateAuthInfo(authInfo);
         action.success(authInfo);
@@ -68,9 +51,6 @@ RedditAuth.prototype = {
       function failure(r) { action.failure(); }
     );
     
-    if (!hasMeAPI) {
-      act.request.overrideMimeType("text/xml");
-    }
     act.perform();
   }),
   
@@ -96,8 +76,11 @@ RedditAuth.prototype = {
 
   snarfAuthInfo: function(doc, win) {
     let authInfo = extractAuthInfo(doc);
-    this.getAuthInfo.cachedValue.updated(authInfo); // reset authentication info expiration
-    this._updateAuthInfo(authInfo);
+    if (authInfo) {
+      logger.log("reddit_auth", this.siteURL, "Scraped auth data from the page.");
+      this.getAuthInfo.cachedValue.updated(authInfo); // reset authentication info expiration
+      this._updateAuthInfo(authInfo);
+    }
   },
   
   actionParams: function(action, params, successCallback) {
@@ -118,51 +101,25 @@ function authParams(params, authInfo) {
 }
 
 function extractAuthInfo(document) {
-  let redditScript = findRedditScript(document)
+  let configInfo = scrapeConfigInfo(document);
+  if (!configInfo) { return; }
+
   let authInfo = {
-    username: extractUsername(redditScript),
-    modhash:  extractModHash(redditScript)
+    username: configInfo.logged,
+    modhash:  configInfo.modhash
   };
   authInfo.isLoggedIn = (authInfo.username != false) && (authInfo.username != null) && (authInfo.modhash != "");
   return authInfo;
 }
 
-function findRedditScript(document) {
-  var scripts = document.getElementsByTagName("script");
-  const redditScript = /^var reddit/;
-  for (var i=0, script; script = scripts[i]; i++) {
-    if (script.textContent.match(redditScript)) {
-      return script;
-    }
-  }
-}
-
-function extractModHash(redditScript) {
+function scrapeConfigInfo(document) {
   try {
-    const getModHash = /modhash\s*(?:\:|=)\s*'(\w*)'/;
-    return redditScript.textContent.match(getModHash)[1];
+    var configScript = document.getElementById("config");
+    if (!configScript) { return; }
+    const unwrapJSONP = /[\w\.]*\((.+)\)/;
+    let json = configScript.textContent.match(unwrapJSONP)[1];
+    return JSON.parse(json);
   } catch (e)  {
-    logger.log("reddit_auth", this.siteURL, "Unable to parse page for user hash: " + e.toString());
-    return null;
-  }
-}
-
-function extractUsername(redditScript) {
-  // Get the username
-  try {
-    const getUsername = /logged\s*(?:\:|=)\s*('(\w+)'|false)/;
-    let username;
-    let [match, outer, inner] = redditScript.textContent.match(getUsername);
-    if (outer == "false") {
-      // Not logged in
-      username = false;
-    } else {
-      username = inner;
-    }
-    
-    return username;
-  } catch (e)  {
-    logger.log("reddit_auth", this.siteURL, "Unable to parse page for username: " + e.toString());
-    return null;
+    logger.log("reddit_auth", this.siteURL, "Unable to scrape auth data from the page: " + e.toString());
   }
 }
