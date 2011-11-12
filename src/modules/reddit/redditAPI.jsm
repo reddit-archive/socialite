@@ -7,9 +7,6 @@ Components.utils.import("resource://socialite/utils/hitch.jsm");
 Components.utils.import("resource://socialite/utils/quantizer.jsm");
 Components.utils.import("resource://socialite/reddit/authentication.jsm");
 
-var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                 .createInstance(Components.interfaces.nsIJSON);
-
 var EXPORTED_SYMBOLS = ["RedditAPI", "RedditVersion"];
 
 QUANTIZE_TIME = 1000;
@@ -65,7 +62,7 @@ function sameFirstArg(func1, arg1, func2, arg2) {
 function tryJSON(action, r) {
   let json;
   try {
-    json = nativeJSON.decode(r.responseText);
+    json = JSON.parse(r.responseText);
   } catch (e) {
     action.failure(r);
     return;
@@ -111,7 +108,7 @@ var _DepaginateAction = Action("depaginate", function(action) {
           let json;
           try {
             // Add the items in the JSON to our collection, and save the "after" attribute.
-            json = nativeJSON.decode(r.responseText);
+            json = JSON.parse(r.responseText);
             action.items = action.items.concat(json.data.children);
             nextAfter = json.data.after;
           } catch (e) {

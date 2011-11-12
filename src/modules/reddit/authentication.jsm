@@ -5,9 +5,6 @@ http = Components.utils.import("resource://socialite/utils/action/httpRequest.js
 Components.utils.import("resource://socialite/utils/hitch.jsm");
 Components.utils.import("resource://socialite/utils/watchable.jsm");
 
-var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                 .createInstance(Components.interfaces.nsIJSON);
-
 var EXPORTED_SYMBOLS = ["RedditAuth", "authParams"];
 
 // ---
@@ -53,7 +50,7 @@ RedditAuth.prototype = {
         let authInfo;
         if (hasMeAPI) {
           try {
-            let json = nativeJSON.decode(r.responseText);
+            let json = JSON.parse(r.responseText);
             if (json.data) {
               authInfo = {username: json.data.name, modhash: json.data.modhash, isLoggedIn: true, info: json.data};
             } else {
