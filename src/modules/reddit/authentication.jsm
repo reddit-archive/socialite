@@ -74,7 +74,7 @@ RedditAuth.prototype = {
     }
   },
 
-  snarfAuthInfo: function(doc, win) {
+  snarfAuthInfo: function(doc) {
     let authInfo = extractAuthInfo(doc);
     if (authInfo) {
       logger.log("reddit_auth", this.siteURL, "Scraped auth data from the page.");

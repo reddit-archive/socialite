@@ -82,7 +82,7 @@ RedditSite.prototype.onSitePageLoad = function(doc, win) {
   // Snarf the authentication hash using wrappedJSObject
   // This should be safe, since Firefox 3 uses a XPCSafeJSObjectWrapper
   // See http://developer.mozilla.org/en/docs/XPConnect_wrappers#XPCSafeJSObjectWrapper
-  this.API.auth.snarfAuthInfo(doc, win);
+  this.API.auth.snarfAuthInfo(doc);
   
   // Update alert state
   let mailIcon = doc.getElementById("mail");
