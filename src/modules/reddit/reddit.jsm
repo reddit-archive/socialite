@@ -75,34 +75,8 @@ RedditSite.prototype.setDefaultPreferences = function(siteDefaultBranch) {
 
 RedditSite.prototype.onSitePageLoad = function(doc, win) {
   if (this.sitePreferences.getBoolPref("watchRedditSiteLinks")) {
-    // Iterate over each article link and register event listener
-    let startTime = Date.now();
-    let linkXPath;
-    if (this.API.version.compare("dom", "1") >= 0) {
-      linkXPath = '//div[contains(@class, "thing") and (contains(@class, "link") or contains(@class, "linkcompressed"))]//a[contains(@class, "title")]';
-    } else {
-      linkXPath = '//div[starts-with(@id, "thingrow") and (contains(@class, "link") or contains(@class, "linkcompressed"))]//a[contains(@class, "title")]';
-    }
-    let res = doc.evaluate(linkXPath, doc.documentElement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-     
-    for (var i=0; i < res.snapshotLength; i++) {
-      var siteLink = res.snapshotItem(i);
-      
-      // FIXME: click event listeners can persist after unloading, preventing the site from unloading properly and being garbage collected.
-      // I'll allow this to happen for now, with a "loaded" check to cause the handlers to do nothing once the site is unloaded.
-      // This is hopefully less demanding than keeping track of and cleaning up the listeners, or simply watching all links that are seen.
-      siteLink.addEventListener("mouseup", hitchThis(this, function(e) {
-        if (this.loaded) {
-          this.linkClicked(e);
-        }
-      }), false);
-      
-      // For debugging purposes
-      //siteLink.style.color = "red";
-    }
-    
-    let endTime = Date.now();
-    logger.log("RedditSite", this.siteName, "Added click handlers to " + res.snapshotLength + " links on " + win.location.href + " in " + (endTime-startTime) + "ms");
+    doc.addEventListener("mousedown", hitchThis(this, this.elClicked), true);
+    logger.log("RedditSite", this.siteName, "Added click handler to " + win.location.href);
   }
   
   // Snarf the authentication hash using wrappedJSObject
@@ -122,8 +96,18 @@ RedditSite.prototype.onSitePageLoad = function(doc, win) {
   }
 };
 
-RedditSite.prototype.linkClicked = function(event) {
-  let link = event.target;
+RedditSite.prototype.elClicked = function(event) {
+  // FIXME: click event listeners can persist after unloading, preventing the site from unloading properly and being garbage collected.
+  // I'll allow this to happen for now, with a "loaded" check to cause the handlers to do nothing once the site is unloaded.
+  // This is hopefully less demanding than keeping track of and cleaning up the listeners, or simply watching all links that are seen.
+  if (!this.loaded) { return; }
+  let a = event.target;
+  if (a.nodeName == 'IMG') { a = a.parentNode; }
+  if (a.nodeName != 'A' || (!a.classList.contains('title') && !a.classList.contains('thumbnail'))) { return; }
+  this.handleLinkClick(a);
+}
+
+RedditSite.prototype.handleLinkClick = function(link) {
   let doc = link.ownerDocument;
   let linkURL = link.href;
   
