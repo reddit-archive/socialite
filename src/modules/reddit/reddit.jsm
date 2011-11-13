@@ -145,6 +145,9 @@ RedditSite.prototype.handleLinkClick = function(link) {
     // Add the information we collected to the watch list.
     Socialite.watchedURLs.watch(linkInfo.url, this, linkInfo, true);
   }
+
+  // Clobber the reddit toolbar href manger.
+  if (link.hasAttribute("onmousedown")) { link.removeAttribute("onmousedown"); }
 };
 
 RedditSite.prototype.scrapeLinkInfo = function(thingElement, linkInfo) {
