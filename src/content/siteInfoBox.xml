@@ -85,7 +85,10 @@
       <method name="destroySiteInfoTooltip">
         <body>
           Array.forEach(this.childNodes, function(siteInfoBox) {
-            siteInfoBox.destroySiteInfoBox();
+            // It seems like the XBL can get detached before we're able to call this method...
+            if (siteInfoBox.destroySiteInfoBox) {
+              siteInfoBox.destroySiteInfoBox();
+            }
           });
         </body>
       </method>
