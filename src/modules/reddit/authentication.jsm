@@ -72,6 +72,8 @@ RedditAuth.prototype = {
       logger.log("reddit_auth", this.siteURL, "Login state changed: " + authInfo.isLoggedIn);
       this.onStateChange.send(authInfo.isLoggedIn);
     }
+
+    this.authInfo.info = authInfo.info || oldAuthInfo.info;
   },
 
   snarfAuthInfo: function(doc) {
