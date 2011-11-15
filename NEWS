@@ -1,3 +1,11 @@
+== Version 1.5 ==
+* Update authentication scraping for compatibility with the new reddit layout.
+* Prevent the built in reddit tool bar from activating.
+* More efficient reddit link click handling.
+* Fix url bar icon positioning when a feed button is added to the toolbar.
+* Fix scraping of reddit posts with hidden scores.
+* Various miscellaneous bugfixes.
+
 == Version 1.4.1 ==
 * Fix a typo.
 

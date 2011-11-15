@@ -5,11 +5,11 @@
   <RDF:Description RDF:about="rdf:#$tddXp3"
                    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    em:minVersion="3.6"
-                   em:maxVersion="7.*" />
+                   em:maxVersion="9.*" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="socialite@chromakode"
                    em:name="Socialite"
-                   em:version="1.4.1"
+                   em:version="1.5"
                    em:type="2"
                    em:iconURL="chrome://socialite/skin/socialite.png"
                    em:optionsURL="chrome://socialite/content/socialitePreferences.xul">
