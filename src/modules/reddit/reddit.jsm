@@ -189,7 +189,8 @@ RedditSite.prototype.scrapeLinkInfo = function(thingElement, linkInfo) {
   } else {
     linkInfo.localState.isLiked = null;
   }
-  linkInfo.localState.score = parseInt(scoreSpan.textContent);
+  let score = parseInt(scoreSpan.textContent);
+  linkInfo.localState.score = !isNaN(score) ? score : null;
   
   //
   // Subreddit
