@@ -390,9 +390,9 @@ var SocialiteWindow = (function() {
       // Helper function to sequentially call getWatchLinkInfo for a group of sites.
       // Since each call happens asynchronously, we iterate by making a chain of callbacks.
       function getSiteWatchLinkInfos(URL, sites, callback) {
-        linkInfos = [];
+        let linkInfos = [];
   
-        siteIterator = Iterator(sites);
+        let siteIterator = Iterator(sites);
         
         function next(linkInfo, start) {
           if (!start) { linkInfos.push(linkInfo); }
@@ -498,7 +498,7 @@ var SocialiteWindow = (function() {
             // Remove site from open notifications
             for (let i=0; i<gBrowser.browsers.length; i++) {
               let browser = gBrowser.browsers[i];
-              socialiteBar = gBrowser.getNotificationBox(browser).getNotificationWithValue(SOCIALITE_CONTENT_NOTIFICATION_VALUE);
+              let socialiteBar = gBrowser.getNotificationBox(browser).getNotificationWithValue(SOCIALITE_CONTENT_NOTIFICATION_VALUE);
               if (socialiteBar) {
                 socialiteBar.removeSiteUI(site);
               }
