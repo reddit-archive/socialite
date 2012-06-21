@@ -113,6 +113,8 @@ notification[value="socialite-submitbar-notification"] {
 }
 
 .socialite-urlbar-icon image[anonid="imgSite"] {
+  width: 16px;
+  height: 16px;
   opacity: .8;
 }
 
