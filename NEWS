@@ -1,3 +1,6 @@
+== Version 1.5.1 ==
+* Fix favicon handling with alternate icon <link>s.
+
 == Version 1.5 ==
 * Update authentication scraping for compatibility with the new reddit layout.
 * Prevent the built in reddit tool bar from activating.

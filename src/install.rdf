@@ -9,7 +9,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="socialite@chromakode"
                    em:name="Socialite"
-                   em:version="1.5"
+                   em:version="1.5.1"
                    em:type="2"
                    em:iconURL="chrome://socialite/skin/socialite.png"
                    em:optionsURL="chrome://socialite/content/socialitePreferences.xul">
