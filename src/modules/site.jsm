@@ -33,7 +33,7 @@ SocialiteSite.prototype = {
   
   getIconURI: function() {
     // We'll assume that favicon.ico exists for now.
-    return this.siteURL+"/favicon.ico";
+    return this.siteURI.prePath+"/favicon.ico";
   },
   
   onLoad: function() {

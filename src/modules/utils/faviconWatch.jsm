@@ -12,32 +12,30 @@ var historyService = Components.classes["@mozilla.org/browser/nav-history-servic
 var EXPORTED_SYMBOLS = ["setFavicon", "getFaviconURL", "addFaviconWatch", "useFaviconAsAttribute"];
 
 var watchables = {};
+var favicons = {}
 
-function setFavicon(siteURL, faviconURL, skipLoad) {
-  let siteURI = IOService.newURI(siteURL, null, null);
-  let faviconURI = IOService.newURI(faviconURL, null, null);
-  
-  if (!skipLoad) {
-    faviconService.setAndLoadFaviconForPage(siteURI, faviconURI, false);
+function setFavicon(siteURL, faviconURL) {
+  favicons[siteURL] = faviconURL;
+
+  let watchable = watchables[siteURL];
+  if (watchable) {
+    watchable.send(faviconURL);
   }
-  return faviconService.getFaviconImageForPage(siteURI).spec;
+
+  return faviconURL;
 }
 
 function getFaviconURL(siteURL) {
-  let siteURI = IOService.newURI(siteURL, null, null);
-  return faviconService.getFaviconImageForPage(siteURI).spec;
+  return favicons[siteURL]
 }
 
 function addFaviconWatch(siteURL, changedCallback) {
-  let siteURI = IOService.newURI(siteURL, null, null);
-  let siteURISpec = siteURI.spec;
-  
   // Add the watch
-  if (!watchables[siteURISpec]) {
-    watchables[siteURISpec] = new Watchable();
+  if (!watchables[siteURL]) {
+    watchables[siteURL] = new Watchable();
   }
   
-  return watchables[siteURISpec].watch(changedCallback);
+  return watchables[siteURL].watch(changedCallback);
 }
 
 function useFaviconWatch(siteURL, changedCallback) {
@@ -57,26 +55,3 @@ function useFaviconAsProperty(element, propertyName, siteURL) {
     element[propertyName] = faviconURL;
   });
 }
-
-historyObserver = {
-  onPageChanged: function(URI, what, value) {
-    if (what == Components.interfaces.nsINavHistoryObserver.ATTRIBUTE_FAVICON) {
-      // Notify all watchables that the favicon has changed, passing the new URI
-      let watchable = watchables[URI.spec];
-      if (watchable) {
-        watchable.send(value);
-      }
-    }
-  },
-
-  onBeginUpdateBatch: function() {},
-  onEndUpdateBatch: function() {},
-  onVisit: function() {},
-  onTitleChanged: function() {},
-  onDeleteURI: function() {},
-  onClearHistory: function() {},
-  onPageExpired: function() {},
-}
-
-// This module persists for the lifetime of the app, so don't worry about removing the observer.
-historyService.addObserver(historyObserver, false);
