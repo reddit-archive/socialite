@@ -50,7 +50,7 @@ function compareBy(keyFunction) {
 function sortChildren(parentElement, compareFunc) {
   sorted = Array.sort(Array.slice(parentElement.childNodes), compareFunc)
   
-  let parentElement = curElement.parentNode;
+  parentElement = curElement.parentNode;
   if (i == nodeList.length) {
     // Insert after the last node
     parentElement.insertBefore(insertElement, curElement.nextSibling);
