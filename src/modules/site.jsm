@@ -113,8 +113,8 @@ SiteCollection.prototype.initRefreshInterval = function() {
 SiteCollection.prototype.onContentLoad = function(doc, win) {
   if (doc.location) {
     for (let [siteID, site] in this) {
-      // Remove www.
-      var baseRegex = /www\.?/;
+      // Remove https?://www.
+      var baseRegex = /https?:\/\/www\.?/;
       var baseSiteHost = site.siteURI.spec.replace(baseRegex, "");
       var baseURL = doc.location.href.replace(baseRegex, "");
       if (strStartsWith(baseURL, baseSiteHost)) {
