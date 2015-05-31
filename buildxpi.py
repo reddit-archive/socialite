@@ -130,7 +130,7 @@ class XPIBuilder:
         self.msg(" - Version: %s" % self.info["version"], False)
         self.msg(" - Filename: %s" % self.pn("xpi"), False)
         
-        xpifile = open(self.pn("xpi"), "r")
+        xpifile = open(self.pn("xpi"), "rb")
         hashname, hash = sha_hash(xpifile.read())
         xpifile.close()
         self.msg(" - %s: %s" % (hashname, hash), False)
